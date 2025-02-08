@@ -2,47 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use Illuminate\Http\Request;
 
-class CompanyController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+class CompanyController extends Controller {
+    public function index(Request $request) {
+        $query = Company::with(['tasks.user']);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%');
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return $query->get()->map(function ($company) {
+            return [
+                'id' => $company->id,
+                'name' => $company->name,
+                'tasks' => $company->tasks->map(function ($task) {
+                    return [
+                        'id' => $task->id,
+                        'name' => $task->name,
+                        'description' => $task->description,
+                        'user' => $task->user->name,
+                        'is_completed' => $task->is_completed,
+                        'start_at' => $task->start_at,
+                        'expired_at' => $task->expired_at,
+                    ];
+                }),
+            ];
+        });
     }
 }

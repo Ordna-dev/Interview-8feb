@@ -9,10 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up() 
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('company_id')->constrained();
+            $table->foreignId('user_id')->constrained();
+            $table->string('name');
+            $table->text('description');
+            $table->boolean('is_completed')->default(false);
+            $table->dateTime('start_at');
+            $table->dateTime('expired_at')->nullable();
             $table->timestamps();
         });
     }
